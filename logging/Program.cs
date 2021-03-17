@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace logging
 {
@@ -22,8 +18,7 @@ namespace logging
 
             Log.Logger = new LoggerConfiguration()
                  .MinimumLevel.ControlledBy(levelSwitch)
-                 .WriteTo.Debug()
-                 .WriteTo.Console()
+                 .WriteTo.Console().Filter.With<SecurityEventFilter>()
                  .CreateLogger();
 
             try
