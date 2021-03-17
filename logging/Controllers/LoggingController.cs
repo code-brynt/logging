@@ -10,7 +10,7 @@ namespace logging.Controllers
     public class LoggingController : ControllerBase
     {
         private readonly ILogger<LoggingController> _logger;
-        LoggingLevelSwitch _levelSwitch;
+        private readonly LoggingLevelSwitch _levelSwitch;
 
         public LoggingController(ILogger<LoggingController> logger, LoggingLevelSwitch levelSwitch)
         {
@@ -18,13 +18,21 @@ namespace logging.Controllers
             _levelSwitch = levelSwitch;
         }
 
-        [HttpGet]
-        public void Get(LogEventLevel eventLevel)
+        [HttpPut("logLevel")]
+        public IActionResult Get(LogEventLevel eventLevel)
         {
-            _logger.LogDebug(_levelSwitch.MinimumLevel.ToString());
-            _logger.LogDebug(eventLevel.ToString());
-
+            // change the injecting logging level
             _levelSwitch.MinimumLevel = eventLevel;
+
+            return Ok();
+        }
+
+        [HttpGet("LogEvent")]
+        public IActionResult LogEvent()
+        {
+            _logger.LogSecurityEvent("log event raise from controller");
+
+            return Ok();
         }
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 using System;
 
 namespace logging
@@ -13,17 +12,25 @@ namespace logging
     {
         public static void Main(string[] args)
         {
-            var levelSwitch = new LoggingLevelSwitch();
-            levelSwitch.MinimumLevel = LogEventLevel.Information;
+            // use this switch to change the logging level at runtime
+            var levelSwitch = new LoggingLevelSwitch
+            {
+                MinimumLevel = LogEventLevel.Verbose
+            };
+            var template = "{Timestamp:yyyy-MM-ddTHH:mm:sszzz} | SECURITY_EVENT | {Message}{NewLine}";
 
+            // the SecurityEventFilter will enable only the required logevents to the Debug console
             Log.Logger = new LoggerConfiguration()
                  .MinimumLevel.ControlledBy(levelSwitch)
-                 .WriteTo.Console().Filter.With<SecurityEventFilter>()
+                 .WriteTo.Console()
+                 .WriteTo.Debug(outputTemplate: template)
+                 .Filter.With<SecurityEventFilter>()
                  .CreateLogger();
 
-            try
+            try 
             {
                 Log.Information("Starting Web Host");
+                // pass the switch into the host builder so it can be registered in the IoC
                 CreateHostBuilder(args, levelSwitch).Build().Run();
             }
             catch (Exception ex)
@@ -38,11 +45,13 @@ namespace logging
 
         public static IHostBuilder CreateHostBuilder(string[] args, LoggingLevelSwitch levelSwitch) =>
             Host.CreateDefaultBuilder(args)
+                // setup serilog
                 .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 })
+                // register the switch in the IoC
                 .ConfigureServices((_, services) =>
                     services.AddSingleton(levelSwitch));
     }
