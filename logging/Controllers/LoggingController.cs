@@ -19,9 +19,9 @@ namespace logging.Controllers
         }
 
         [HttpPut("logLevel")]
-        public IActionResult Get(LogEventLevel eventLevel)
+        public IActionResult ChangeLevel(LogEventLevel eventLevel)
         {
-            // change the injecting logging level
+            // change the injected logging level
             _levelSwitch.MinimumLevel = eventLevel;
 
             return Ok();
@@ -30,7 +30,7 @@ namespace logging.Controllers
         [HttpGet("LogEvent")]
         public IActionResult LogEvent()
         {
-            _logger.LogSecurityEvent("log event raise from controller");
+            _logger.LogSecurityEvent("log event raised by the controller");
 
             return Ok();
         }
